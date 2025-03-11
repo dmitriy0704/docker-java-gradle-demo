@@ -1,0 +1,9 @@
+.git
+.idea/
+*.iml
+*.class
+# Игнорировать папки сборки
+out/
+build/
+target/
+.gradle/
