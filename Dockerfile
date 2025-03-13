@@ -1,22 +1,29 @@
-FROM eclipse-temurin:21-jdk as build
+# Use full JDK for building
+FROM eclipse-temurin:17-jdk AS build
 
 RUN mkdir /project
 WORKDIR /project
 
 COPY ./gradle ./gradle
-COPY ./gradlew* ./settings.gradle*.
+COPY ./gradlew* ./settings.gradle* .
 RUN ./gradlew
 
+# Copy everything into container
 COPY . .
 
-RUN ./gredlew clean installDist
+# Build as before
+RUN ./gradlew clean installDist
 
-FROM eclipse-temurin:21-jre
 
+# Actual output image now uses JRE for smaller footprint
+FROM eclipse-temurin:17-jre
+
+# /opt/app is where we'll place all of our stuff to run
 RUN mkdir /opt/app
 
+# We grab from our build image results
 COPY --from=build /project/build/install/docker-java-gradle-demo /opt/app/
 
+# Uses the generated startup script Gradle creates for us
 WORKDIR /opt/app/bin
-
 CMD ["./docker-java-gradle-demo"]
